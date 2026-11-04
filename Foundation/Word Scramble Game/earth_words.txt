@@ -1,0 +1,10 @@
+science
+experiment
+hypothesis
+equation
+variable
+history
+artifact
+civilization
+revolution
+geography
