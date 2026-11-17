@@ -35,10 +35,18 @@ if __name__ == "__main__":
     img_path = select_file()
     img = cv2.imread(img_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # ty: ignore[no-matching-overload]
-    cv2.imshow("Gray Image", gray) 
-    cv2.waitKey(0) 
-    cv2.destroyAllWindows()
-    thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)[1]
-   
-    text = pytesseract.image_to_string(thresh, lang='eng')
+    # thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)[1]
+    boxes = pytesseract.image_to_data(gray, output_type=pytesseract.Output.DICT)
+    for i in range(len(boxes['text'])):
+        if int(boxes['conf'][i]) > 20: # confidence filter
+            x, y, w, h = boxes['left'][i], boxes['top'][i], boxes['width'][i], boxes['height'][i]
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.putText(img, boxes['text'][i], (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    # cv2.rectangle(img, (boxes['left'][0], boxes['top'][0]), (boxes['left'][0] + boxes['width'][0], boxes['top'][0] + boxes['height'][0]), (0, 255, 0), 2)
+    cv2.imshow("Gray Image", img) 
+    if cv2.waitKey(0) & 0xFF == ord('q'):
+        cv2.destroyAllWindows()
+        
+    
+    text = pytesseract.image_to_string(img, lang='eng')
     print(f"\nExtracted text:\n{text}")
